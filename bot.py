@@ -1,3 +1,5 @@
+# ✅ bot.py — с рабочей регистрацией Webhook и поддержкой polling/webhook режимов
+
 import asyncio
 import logging
 import os
@@ -5,13 +7,12 @@ from aiohttp import web
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler
 from dotenv import load_dotenv
-from gsheets import get_articles_text, add_article, remove_article
+from gsheets import append, get_articles_text, add_article, remove_article
 from wb_parser import fetch_price
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-# ───── Загрузка переменных ─────
+# ───── Загрузка переменных окружения ─────
 load_dotenv()
-MODE = os.getenv("MODE", "local")
 USE_WEBHOOK = os.getenv("USE_WEBHOOK", "false").lower() == "true"
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 DOMAIN = os.getenv("DOMAIN", "")
@@ -20,7 +21,7 @@ PORT = int(os.getenv("PORT", 8080))
 TZ = os.getenv("TZ", "Europe/Moscow")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
 
-# ───── Базовая настройка ─────
+# ───── Инициализация ─────
 logging.basicConfig(level=logging.INFO)
 bot = Bot(BOT_TOKEN)
 dp = Dispatcher()
@@ -43,7 +44,6 @@ async def cmd_start(msg: types.Message):
 @dp.message(F.text == "/help")
 async def cmd_help(msg: types.Message):
     if msg.from_user.id not in ADMIN_IDS:
-        await msg.answer("⛔ Нет доступа.")
         return
     await msg.answer("""
 📋 Команды:
@@ -98,6 +98,7 @@ async def on_startup(app: web.Application):
         await bot.set_webhook(url)
         logging.info(f"✅ Webhook установлен: {url}")
     await setup_scheduler()
+
 
 def create_webhook_app() -> web.Application:
     app = web.Application()
