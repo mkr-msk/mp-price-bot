@@ -1,0 +1,6 @@
+aiogram~=3.20.0.post0
+aiohttp~=3.11.17
+python-dotenv~=1.1.0
+gspread~=6.2.0
+bs4~=0.0.2
+beautifulsoup4~=4.13.4

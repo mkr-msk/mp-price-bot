@@ -1,0 +1,4 @@
+.env
+.idea
+.venv
+service_account.json
