@@ -1,0 +1,38 @@
+name: Deploy to ARM64 Server
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout репозитория
+        uses: actions/checkout@v4
+
+      - name: 🐳 Вход в Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: 🏗 Сборка и пуш Docker-образа (ARM64)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: ${{ secrets.DOCKER_USER }}/pricebot:latest
+
+      - name: 🚀 Деплой по SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/mp-price-bot
+            docker pull ${{ secrets.DOCKER_USER }}/pricebot:latest
+            docker compose up -d --build
