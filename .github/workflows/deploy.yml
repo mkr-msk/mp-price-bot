@@ -11,7 +11,7 @@ jobs:
       - name: 📥 Checkout репозитория
         uses: actions/checkout@v4
 
-      - name: 🚀 SSH: Pull + Build + Deploy
+      - name: Pull + Build + Deploy
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
